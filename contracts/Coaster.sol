@@ -59,7 +59,7 @@ contract Coaster {
         );
         require(
             bytes(_guestAlias).length > 0,
-            "Invalid guest address."
+            "Invalid guest alias."
         );
         require(
             _debtsLimit > 0,
