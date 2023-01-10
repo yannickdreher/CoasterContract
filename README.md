@@ -8,5 +8,5 @@ A condition of the contract is that the guest gives the contract a direct debit 
 ```javascript
 token.approve(<coaster.address>, <amount>);
 ```
-With this permission, the contract is possible to make all payments.
+With this permission, the contract is able to make all payments.
 When the guest has settled his debts, the innkeeper can withdraw the balance of the contract.
