@@ -43,12 +43,7 @@ contract Coaster {
         uint timestamp
     );
 
-    constructor(
-        address _token,
-        address _guest,
-        string memory _guestAlias,
-        uint256 _debtsLimit
-    ) {
+    constructor(address _token, address _guest, string memory _guestAlias, uint256 _debtsLimit) {
         require(
             msg.sender != address(0),
             "Invalid sender address."
@@ -86,10 +81,7 @@ contract Coaster {
         _;
     }
 
-    function addDebts(
-        string memory _productName,
-        uint256 _productPrice
-    ) external onlyBy(owner) {
+    function addDebts(string memory _productName, uint256 _productPrice) external onlyBy(owner) {
         require(
             status == Status.Active,
             "Contract is not active."
