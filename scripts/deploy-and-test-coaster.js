@@ -42,8 +42,8 @@ async function main() {
   async function subscribeToEvents() {
     console.log(`Subscribe to events`);
 
-    coaster.on("DebtsAdded", (productName, productPrice, totalDebts, timestamp) => {
-      console.log(`DebtsAdded event: productName=${productName} productPrice=${formatEther(productPrice)} totalDebts=${formatEther(totalDebts)} ${new Date(timestamp * 1000).toISOString()}`);
+    coaster.on("DebtsAdded", (amount, productName, productPrice, totalDebts, timestamp) => {
+      console.log(`DebtsAdded event: amount=${amount} productName=${productName} productPrice=${formatEther(productPrice)} totalDebts=${formatEther(totalDebts)} ${new Date(timestamp * 1000).toISOString()}`);
     });
     console.log(`\tSubscribed to: DebtsAdded`);
 
@@ -77,7 +77,7 @@ async function main() {
     let debtLimit   = formatEther(await coaster.debtsLimit());
     let created     = new Date(await coaster.created() * 1000);
     let status      = await coaster.status();
-    let balance     = formatEther(await coaster.getBalance());
+    let balance     = formatEther(await token.balanceOf(coaster.address));
 
     console.log(`Coaster properties`);
     console.log(`\towner: ${owner}`);
@@ -101,7 +101,8 @@ async function main() {
     let tx;
 
     for(let i = 0; i < amount; i++) {
-      tx = await coaster.addDebts(productName, productPrice);
+      let amount = Math.floor(Math.random() * 4);
+      tx = await coaster.addDebts(amount, productName, productPrice);
       await tx.wait();
     }
 
@@ -135,7 +136,7 @@ async function main() {
     amount = parseUnits(amount, 18);
     console.log(`\tamount: ${amount}`);
 
-    let tx = await coaster.connect(guestSigner).payDebts({value: amount});
+    let tx = await coaster.connect(guestSigner).payDebts(amount);
     await tx.wait();
 
     console.log();
@@ -163,7 +164,7 @@ async function main() {
 
   await subscribeToEvents();
   await getCoasterProperties();
-  await addDebts(20);
+  await addDebts(2);
   await getCoasterProperties();
   await queryDebtsAddedHistory();
   //await payDebts("10");
@@ -171,7 +172,7 @@ async function main() {
   await collectDebts();
   await approveForCoaster("100");
   //await collectDebts();
-  await payDebts("10");
+  await payDebts("1.5");
   await getCoasterProperties();
   await collectDebts();
   await withdraw()

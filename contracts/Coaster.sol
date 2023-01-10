@@ -19,6 +19,7 @@ contract Coaster {
     Status public status;
 
     event DebtsAdded(
+        uint amount,
         string productName,
         uint256 productPrice,
         uint256 totalDebts,
@@ -81,14 +82,14 @@ contract Coaster {
         _;
     }
 
-    function getBalance() public view returns (uint256) {
-        return address(this).balance;
-    }
-
-    function addDebts(string memory _productName, uint256 _productPrice) external onlyBy(owner) {
+    function addDebts(uint _amount, string memory _productName, uint256 _productPrice) external onlyBy(owner) {
         require(
             status == Status.Active,
             "Contract is not active."
+        );
+        require(
+            _amount > 0,
+            "Invalid amount."
         );
         require(
             bytes(_productName).length != 0,
@@ -98,14 +99,18 @@ contract Coaster {
             _productPrice > 0,
             "Invalid product price."
         );
+
+        uint256 totalPrice = _productPrice * _amount;
+
         require(
-            debtsLimit >= debtsAmount + _productPrice,
+            debtsLimit >= totalPrice,
             "Debts limit exceeded."
         );
 
-        debtsAmount += _productPrice;
+        debtsAmount += totalPrice;
 
         emit DebtsAdded(
+            _amount,
             _productName,
             _productPrice,
             debtsAmount,
@@ -113,20 +118,25 @@ contract Coaster {
         );
     }
 
-    function payDebts() external payable onlyBy(guest) {
+    function payDebts(uint256 _amount) external onlyBy(guest) {
         require(
             status == Status.Active,
             "Contract is not active."
         );
         require(
-            msg.value <= debtsAmount,
+            _amount <= debtsAmount,
             "Invalid repayment amount."
         );
+        require(token.transferFrom(
+            guest,
+            address(this),
+            _amount
+        ));
 
-        debtsAmount -= msg.value;
+        debtsAmount -= _amount;
 
         emit DebtsPayed(
-            msg.value,
+            _amount,
             debtsAmount,
             block.timestamp
         );
@@ -180,8 +190,13 @@ contract Coaster {
     }
 
     function withdraw() external onlyBy(owner) {
-        require(address(this).balance > 0, "No balance to withdraw.");
-        payable(owner).transfer(address(this).balance);
+        uint256 balance = token.balanceOf(address(this));
+        require(
+            balance > 0, "No balance to withdraw."
+        );
+        require(
+            token.transfer(owner, balance)
+        );
     }
 
     function dispose() public onlyBy(owner) {
