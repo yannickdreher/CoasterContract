@@ -1,13 +1,12 @@
-# Sample Hardhat Project
+# Etherium Coaster Contract
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This project is a smart contract that can be used as a digital coaster.
+The intention is that an innkeeper issues a digital coaster to his guest and collects the food and drinks consumed on it.
+Thereby, the host specifies the token with which the guest must pay and the maximum amount of debts until the contract should not incur any further debts.
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
+A condition of the contract is that the guest gives the token a direct debit authorization (allowance) for the corresponding token.
+```javascript
+token.approve(<coaster.address>, <amount>);
 ```
+With this permission, the contract is possible to make all payments.
+When the guest has settled his debts, the innkeeper can withdraw the balance of the contract.
