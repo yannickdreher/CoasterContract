@@ -45,27 +45,11 @@ contract Coaster {
     );
 
     constructor(address _token, address _guest, string memory _guestAlias, uint256 _debtsLimit) {
-        require(
-            msg.sender != address(0),
-            "Invalid sender address."
-        );
-        require(
-            _token != address(0),
-            "Invalid token address."
-        );
-        require(
-            _guest != address(0),
-            "Invalid guest address."
-        );
-        require(
-            bytes(_guestAlias).length > 0,
-            "Invalid guest alias."
-        );
-        require(
-            _debtsLimit > 0,
-            "Invalid debts limit."
-        );
-
+        require(msg.sender != address(0), "Invalid sender address.");
+        require(_token != address(0), "Invalid token address.");
+        require(_guest != address(0), "Invalid guest address.");
+        require(bytes(_guestAlias).length > 0, "Invalid guest alias.");
+        require( _debtsLimit > 0,"Invalid debts limit.");
         owner = msg.sender;
         token = IERC20(_token);
         guest = _guest;
@@ -75,72 +59,27 @@ contract Coaster {
     }
 
     modifier onlyBy(address _account) {
-        require(
-            msg.sender == _account,
-            "Sender not authorized."
-        );
+        require(msg.sender == _account, "Sender not authorized.");
         _;
     }
 
     function addDebts(uint _amount, string memory _productName, uint256 _productPrice) external onlyBy(owner) {
-        require(
-            status == Status.Active,
-            "Contract is not active."
-        );
-        require(
-            _amount > 0,
-            "Invalid amount."
-        );
-        require(
-            bytes(_productName).length != 0,
-            "Invalid product name."
-        );
-        require(
-            _productPrice > 0,
-            "Invalid product price."
-        );
-
+        require(status == Status.Active, "Contract is not active.");
+        require(_amount > 0, "Invalid amount.");
+        require(bytes(_productName).length != 0, "Invalid product name.");
+        require(_productPrice > 0, "Invalid product price.");
         uint256 totalPrice = _productPrice * _amount;
-
-        require(
-            debtsLimit >= totalPrice,
-            "Debts limit exceeded."
-        );
-
+        require(debtsLimit >= totalPrice, "Debts limit exceeded.");
         debtsAmount += totalPrice;
-
-        emit DebtsAdded(
-            _amount,
-            _productName,
-            _productPrice,
-            debtsAmount,
-            block.timestamp
-        );
+        emit DebtsAdded(_amount, _productName, _productPrice, debtsAmount, block.timestamp);
     }
 
     function payDebts(uint256 _amount) external onlyBy(guest) {
-        require(
-            status == Status.Active,
-            "Contract is not active."
-        );
-        require(
-            _amount <= debtsAmount,
-            "Invalid repayment amount."
-        );
-        require(token.transferFrom(
-            guest,
-            address(this),
-            _amount
-        ));
-
+        require(status == Status.Active, "Contract is not active.");
+        require(_amount <= debtsAmount, "Invalid repayment amount.");
+        require(token.transferFrom(guest, address(this), _amount));
         debtsAmount -= _amount;
-
-        emit DebtsPayed(
-            _amount,
-            debtsAmount,
-            block.timestamp
-        );
-
+        emit DebtsPayed(_amount, debtsAmount, block.timestamp);
         terminate();
     }
 
@@ -156,30 +95,19 @@ contract Coaster {
                 amount = debtsAmount;
             }
 
-            require(
-                token.transferFrom(
-                    guest,
-                    address(this),
-                    amount
-                )
-            );
-
+            require(token.transferFrom(guest, address(this), amount));
             debtsAmount -= amount;
-            
-            emit DebtsCollected(
-                amount,
-                debtsAmount,
-                block.timestamp
-            );
-
+            emit DebtsCollected(amount, debtsAmount, block.timestamp);
             terminate();
         } else {
-            emit AllowanceRequest(
-                address(this),
-                debtsAmount,
-                block.timestamp
-            );
+            emit AllowanceRequest(address(this), debtsAmount, block.timestamp);
         }
+    }
+
+    function withdraw() external onlyBy(owner) {
+        uint256 balance = token.balanceOf(address(this));
+        require(balance > 0, "No balance to withdraw.");
+        require(token.transfer(owner, balance));
     }
 
     function terminate() internal {
@@ -187,16 +115,6 @@ contract Coaster {
             status = Status.Terminated;
             emit Terminated(block.timestamp);
         }
-    }
-
-    function withdraw() external onlyBy(owner) {
-        uint256 balance = token.balanceOf(address(this));
-        require(
-            balance > 0, "No balance to withdraw."
-        );
-        require(
-            token.transfer(owner, balance)
-        );
     }
 
     function dispose() public onlyBy(owner) {
