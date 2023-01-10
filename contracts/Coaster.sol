@@ -84,10 +84,7 @@ contract Coaster {
     }
 
     function collectDebts() external onlyBy(owner) {
-        uint256 allowance = token.allowance(
-            guest,
-            address(this)
-        );
+        uint256 allowance = token.allowance(guest, address(this));
         uint256 amount = allowance;
 
         if(allowance > 0) {
