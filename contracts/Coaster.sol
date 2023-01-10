@@ -81,6 +81,10 @@ contract Coaster {
         _;
     }
 
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
     function addDebts(string memory _productName, uint256 _productPrice) external onlyBy(owner) {
         require(
             status == Status.Active,
@@ -118,11 +122,6 @@ contract Coaster {
             msg.value <= debtsAmount,
             "Invalid repayment amount."
         );
-        require(token.transferFrom(
-            guest,
-            address(this),
-            msg.value
-        ));
 
         debtsAmount -= msg.value;
 

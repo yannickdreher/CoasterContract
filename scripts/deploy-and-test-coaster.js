@@ -78,6 +78,7 @@ async function main() {
     let created     = new Date(await coaster.created() * 1000);
     let status      = await coaster.status();
     let balance     = formatEther(await token.balanceOf(coaster.address));
+    let cbalance     = formatEther(await coaster.getBalance());
 
     console.log(`Coaster properties`);
     console.log(`\towner: ${owner}`);
@@ -88,6 +89,7 @@ async function main() {
     console.log(`\tcreated: ${created.toISOString()}`);
     console.log(`\tstatus: ${status}`);
     console.log(`\tbalance: ${balance}`);
+    console.log(`\tbalance: ${cbalance}`);
     console.log();
   }
 
