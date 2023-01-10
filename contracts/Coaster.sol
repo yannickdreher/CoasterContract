@@ -180,8 +180,8 @@ contract Coaster {
     }
 
     function withdraw() external onlyBy(owner) {
-        uint256 balance = token.balanceOf(address(this));
-        token.transfer(owner, balance);
+        require(address(this).balance > 0, "No balance to withdraw.");
+        payable(owner).transfer(address(this).balance);
     }
 
     function dispose() public onlyBy(owner) {
