@@ -1,4 +1,4 @@
-# Etherium Coaster Contract
+# Ethereum Coaster Contract
 
 This project is a smart contract that can be used as a digital coaster.
 The intention is that an innkeeper issues a digital coaster to his guest and collects the food and drinks consumed on it.
